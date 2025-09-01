@@ -1,2 +1,1465 @@
-# fully-free-biodata-builder-by-lakshyam
-This website can build your Biodata in attractive way
+
+[index.html (2).html](https://github.com/user-attachments/files/22075794/index.html.2.html)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Bio Data Creator</title>
+    <!-- jsPDF and html2canvas from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --radius: 12px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .category-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .category-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            background: #eff6ff;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+        }
+
+        .category-card h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .category-card p {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-container {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-header h2 {
+            color: var(--primary);
+        }
+
+        .back-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            background: #475569;
+        }
+
+        .form-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .form-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .upload-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            border: 1px dashed var(--border);
+        }
+
+        .upload-section h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-item {
+            margin-bottom: 15px;
+        }
+
+        .upload-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: block;
+            padding: 12px 15px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .file-label:hover {
+            background: #f1f5f9;
+        }
+
+        .preview-container {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .preview-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--danger);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0da271;
+        }
+
+        .preview-section {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .preview-header h2 {
+            color: var(--primary);
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .preview-content {
+            background: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .biodata-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .biodata-info h2 {
+            font-size: 2rem;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .biodata-info h3 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .biodata-photo {
+            width: 150px;
+            height: 180px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .biodata-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .biodata-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-group {
+            margin-bottom: 15px;
+        }
+
+        .detail-group h4 {
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .detail-group p {
+            color: var(--dark);
+            font-size: 1.05rem;
+        }
+
+        .documents-section {
+            margin-top: 30px;
+        }
+
+        .documents-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .document-item {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .document-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .document-name {
+            padding: 10px;
+            font-size: 0.9rem;
+            text-align: center;
+            background: #f8fafc;
+        }
+
+        .ad-container {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            margin: 30px 0;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .ad-container h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .ad-placeholder {
+            background: #f1f5f9;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .share-options {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .share-options h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            color: white;
+        }
+
+        .share-whatsapp {
+            background: #25D366;
+        }
+
+        .share-whatsapp:hover {
+            background: #128C7E;
+        }
+
+        .share-linkedin {
+            background: #0077B5;
+        }
+
+        .share-linkedin:hover {
+            background: #005582;
+        }
+
+        .share-jeevansathi {
+            background: #FF7043;
+        }
+
+        .share-jeevansathi:hover {
+            background: #F4511E;
+        }
+
+        .share-shaadi {
+            background: #E52B27;
+        }
+
+        .share-shaadi:hover {
+            background: #B71C1C;
+        }
+
+        .share-naukri {
+            background: #2E7D32;
+        }
+
+        .share-naukri:hover {
+            background: #1B5E20;
+        }
+
+        .share-scholarship {
+            background: #7B1FA2;
+        }
+
+        .share-scholarship:hover {
+            background: #4A148C;
+        }
+
+        .share-event {
+            background: #0277BD;
+        }
+
+        .share-event:hover {
+            background: #01579B;
+        }
+
+        .share-gov {
+            background: #455A64;
+        }
+
+        .share-gov:hover {
+            background: #263238;
+        }
+
+        .share-club {
+            background: #EF6C00;
+        }
+
+        .share-club:hover {
+            background: #E65100;
+        }
+
+        .share-health {
+            background: #00897B;
+        }
+
+        .share-health:hover {
+            background: #00695C;
+        }
+
+        .share-card {
+            background: #5D4037;
+        }
+
+        .share-card:hover {
+            background: #3E2723;
+        }
+
+        .share-intern {
+            background: #D81B60;
+        }
+
+        .share-intern:hover {
+            background: #880E4F;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 100%;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: var(--primary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary);
+        }
+
+        .option-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--secondary);
+            margin-top: 40px;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Professional Bio Data Creator</h1>
+            <p>Create, download, and share professional biodatas for various purposes</p>
+        </header>
+
+        <!-- Categories Section -->
+        <section id="categories-section">
+            <h2>Choose a Category</h2>
+            <div class="categories-grid">
+                <div class="category-card" data-category="interview">
+                    <div class="category-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3>Job Biodata</h3>
+                    <p>Professional resume for job applications</p>
+                </div>
+                <div class="category-card" data-category="marriage">
+                    <div class="category-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Marriage Biodata</h3>
+                    <p>Matrimonial profile for marriage purposes</p>
+                </div>
+                <div class="category-card" data-category="school">
+                    <div class="category-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>Education Biodata</h3>
+                    <p>For academic applications</p>
+                </div>
+                <div class="category-card" data-category="scholarship">
+                    <div class="category-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h3>Scholarship</h3>
+                    <p>Apply for educational financial aid</p>
+                </div>
+                <div class="category-card" data-category="competition">
+                    <div class="category-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>Competition & Event</h3>
+                    <p>Register for competitions and events</p>
+                </div>
+                <div class="category-card" data-category="government">
+                    <div class="category-icon">
+                        <i class="fas fa-landmark"></i>
+                    </div>
+                    <h3>Government Forms</h3>
+                    <p>Official applications for government services</p>
+                </div>
+                <div class="category-card" data-category="club">
+                    <div class="category-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Club Membership</h3>
+                    <p>Apply for club or sports membership</p>
+                </div>
+                <div class="category-card" data-category="medical">
+                    <div class="category-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>Medical Records</h3>
+                    <p>Health and medical information</p>
+                </div>
+                <div class="category-card" data-category="cards">
+                    <div class="category-icon">
+                        <i class="fas fa-address-card"></i>
+                    </div>
+                    <h3>For Cards</h3>
+                    <p>Create ID or business cards</p>
+                </div>
+                <div class="category-card" data-category="training">
+                    <div class="category-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3>Training & Internship</h3>
+                    <p>Apply for training programs</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form Section -->
+        <section class="form-container" id="form-section">
+            <div class="form-header">
+                <h2 id="form-title">Create Biodata</h2>
+                <button class="back-btn" id="back-to-categories">
+                    <i class="fas fa-arrow-left"></i> Back to Categories
+                </button>
+            </div>
+
+            <div class="form-content">
+                <div class="form-fields" id="form-fields">
+                    <!-- Form fields will be generated here -->
+                </div>
+
+                <div class="form-sidebar">
+                    <!-- Photo Upload Section -->
+                    <div class="upload-section">
+                        <h3><i class="fas fa-camera"></i> Photos</h3>
+                        
+                        <div class="upload-item">
+                            <label>Passport Size Photo *</label>
+                            <input type="file" id="passport-photo" class="file-input" accept="image/*">
+                            <label for="passport-photo" class="file-label">
+                                <i class="fas fa-upload"></i> Upload Photo
+                            </label>
+                            <div class="preview-container" id="passport-preview"></div>
+                        </div>
+
+                        <div class="upload-item">
+                            <label>Additional Photos</label>
+                            <input type="file" id="additional-photos" class="file-input" accept="image/*" multiple>
+                            <label for="additional-photos" class="file-label">
+                                <i class="fas fa-images"></i> Upload Photos
+                            </label>
+                            <div class="preview-container" id="additional-previews"></div>
+                        </div>
+                    </div>
+
+                    <!-- Documents Upload Section -->
+                    <div class="upload-section">
+                        <h3><i class="fas fa-file-pdf"></i> Documents</h3>
+                        
+                        <div class="upload-item">
+                            <label>Relevant Documents</label>
+                            <input type="file" id="documents" class="file-input" accept="image/*,.pdf" multiple>
+                            <label for="documents" class="file-label">
+                                <i class="fas fa-upload"></i> Upload Documents
+                            </label>
+                            <div class="preview-container" id="document-previews"></div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="generate-preview">
+                            <i class="fas fa-eye"></i> Preview Biodata
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Container -->
+            <div class="ad-container">
+                <h3>Premium Biodata Templates</h3>
+                <div class="ad-placeholder">
+                    <!-- Google AdSense Ad Unit -->
+                    <div id="google-ad">
+                        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-your-publisher-id" crossorigin="anonymous"></script>
+                        <ins class="adsbygoogle"
+                             style="display:block"
+                             data-ad-client="ca-pub-your-publisher-id"
+                             data-ad-slot="your-ad-slot"
+                             data-ad-format="auto"
+                             data-full-width-responsive="true"></ins>
+                        <script>
+                             (adsbygoogle = window.adsbygoogle || []).push({});
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Preview Section -->
+        <section class="preview-section" id="preview-section">
+            <div class="preview-header">
+                <h2>Biodata Preview</h2>
+                <div class="preview-actions">
+                    <button class="btn btn-secondary" id="back-to-form">
+                        <i class="fas fa-edit"></i> Edit Biodata
+                    </button>
+                    <button class="btn btn-primary" id="download-pdf">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </button>
+                    <button class="btn btn-success" id="download-jpg">
+                        <i class="fas fa-file-image"></i> Download JPG
+                    </button>
+                </div>
+            </div>
+
+            <div class="preview-content" id="biodata-preview">
+                <!-- Preview content will be generated here -->
+            </div>
+
+            <!-- Share Options -->
+            <div class="share-options">
+                <h3>Share Biodata</h3>
+                <div class="share-buttons" id="share-buttons">
+                    <!-- Share buttons will be generated here based on category -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- PDF Options Modal -->
+    <div class="modal" id="pdf-options-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>PDF Export Options</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <p>How would you like to arrange your biodata in the PDF?</p>
+            <div class="option-buttons">
+                <button class="btn btn-primary" id="combined-pdf">
+                    <i class="fas fa-file"></i> Text and Photos Combined
+                </button>
+                <button class="btn btn-secondary" id="separate-pdf">
+                    <i class="fas fa-copy"></i> Text and Photos Separate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2023 Professional Bio Data Creator. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Category configurations
+        const categories = {
+            interview: {
+                title: "Job Biodata",
+                fields: [
+                    { name: "fullName", label: "Full Name *", type: "text", required: true },
+                    { name: "email", label: "Email Address *", type: "email", required: true },
+                    { name: "phone", label: "Phone Number *", type: "tel", required: true },
+                    { name: "address", label: "Address", type: "text" },
+                    { name: "education", label: "Education *", type: "textarea", required: true },
+                    { name: "experience", label: "Work Experience *", type: "textarea", required: true },
+                    { name: "skills", label: "Skills *", type: "textarea", required: true },
+                    { name: "languages", label: "Languages Known", type: "text" },
+                    { name: "achievements", label: "Achievements", type: "textarea" },
+                    { name: "references", label: "References", type: "textarea" }
+                ],
+                shareOptions: [
+                    { name: "WhatsApp", class: "share-whatsapp", icon: "fab fa-whatsapp" },
+                    { name: "LinkedIn", class: "share-linkedin", icon: "fab fa-linkedin" },
+                    { name: "Naukri.com", class: "share-naukri", icon: "fas fa-briefcase" }
+                ]
+            },
+            marriage: {
+                title: "Marriage Biodata",
+                fields: [
+                    { name: "fullName", label: "Full Name *", type: "text", required: true },
+                    { name: "age", label: "Age *", type: "number", required: true },
+                    { name: "height", label: "Height", type: "text" },
+                    { name: "religion", label: "Religion *", type: "text", required: true },
+                    { name: "caste", label: "Caste", type: "text" },
+                    { name: "education", label: "Education *", type: "text", required: true },
+                    { name: "occupation", label: "Occupation *", type: "text", required: true },
+                    { name: "income", label: "Annual Income", type: "text" },
+                    { name: "family", label: "Family Details *", type: "textarea", required: true },
+                    { name: "hobbies", label: "Hobbies & Interests", type: "textarea" },
+                    { name: "expectations", label: "Partner Expectations", type: "textarea" }
+                ],
+                shareOptions: [
+                    { name: "WhatsApp", class: "share-whatsapp", icon: "fab fa-whatsapp" },
+                    { name: "Jeevansathi", class: "share-jeevansathi", icon: "fas fa-heart" },
+                    { name: "Shaadi.com", class: "share-shaadi", icon: "fas fa-ring" }
+                ]
+            },
+            school: {
+                title: "Education Biodata",
+                fields: [
+                    { name: "fullName", label: "Full Name *", type: "text", required: true },
+                    { name: "dob", label: "Date of Birth *", type: "date", required: true },
+                    { name: "institution", label: "Current Institution *", type: "text", required: true },
+                    { name: "course", label: "Course/Program *", type: "text", required: true },
+                    { name: "year", label: "Year/Semester *", type: "text", required: true },
+                    { name: "grades", label: "Grades/Percentage *", type: "text", required: true },
+                    { name: "achievements", label: "Academic Achievements", type: "textarea" },
+                    { name: "extracurricular", label: "Extracurricular Activities", type: "textarea" },
+                    { name: "goals", label: "Career Goals *", type: "textarea", required: true }
+                ],
+                shareOptions: [
+                    { name: "WhatsApp", class: "share-whatsapp", icon: "fab fa-whatsapp" },
+                    { name: "Email", class: "share-email", icon: "fas fa-envelope" }
+                ]
+            },
+            scholarship: {
+                title: "Scholarship Application",
+                fields: [
+                    { name: "fullName", label: "Full Name *", type: "text", required: true },
+                    { name: "dob", label: "Date of Birth *", type: "date", required: true },
+                    { name: "institution", label: "Educational Institution *", type: "text", required: true },
+                    { name: "course", label: "Course/Program *", type: "text", required: true },
+                    { name: "year", label: "Year/Semester *", type: "text", required: true },
+                    { name: "grades", label: "Grades/Percentage *", type: "text", required: true },
+                    { name: "familyIncome", label: "Family Income *", type: "text", required: true },
+                    { name: "achievements", label: "Academic Achievements", type: "textarea" },
+                    { name: "financialNeed", label: "Financial Need *", type: "textarea", required: true }
+                ],
+                shareOptions: [
+                    { name: "WhatsApp", class: "share-whatsapp", icon: "fab fa-whatsapp" },
+                    { name: "Scholarship Portal", class: "share-scholarship", icon: "fas fa-award" }
+                ]
+            },
+            competition: {
+                title: "Competition Registration",
+                fields: [
+                    { name: "fullName", label: "Full Name *", type: "text", required: true },
+                    { name: "age", label: "Age *", type: "number", required: true },
+                    { name: "competitionName", label: "Competition Name *", type: "text", required: true },
+                    { name: "category", label: "Category *", type: "text", required: true },
+                    { name: "teamName", label: "Team Name (if applicable)", type: "text" },
+                    { name: "institution", label: "Educational Institution", type: "text" },
+                    { name: "experience", label: "Previous Experience", type: "textarea" },
+                    { name: "achievements", label: "Past Achievements", type: "textarea" }
+                ],
+                shareOptions: [
+                    { name: "WhatsApp", class: "share-whatsapp", icon: "fab fa-whatsapp" },
+                    { name: "Event Website", class: "share-event", icon: "fas fa-trophy" }
+                ]
+            },
+            government: {
+                title: "Government Application",
+                fields: [
+                    { name: "fullName", label: "Full Name *", type: "text", required: true },
+                    { name: "fatherName", label: "Father's Name *", type: "text", required: true },
+                    { name: "motherName", label: "Mother's Name *", type: "text", required: true },
+                    { name: "dob", label: "Date of Birth *", type: "date", required: true },
+                    { name: "gender", label: "Gender *", type: "select", options: ["Male", "Female", "Other"], required: true },
+                    { name: "aadhaar", label: "Aadhaar Number", type: "text" },
+                    { name: "pan", label: "PAN Number", type: "text" },
+                    { name: "address", label: "Permanent Address *", type: "textarea", required: true },
+                    { name: "purpose", label: "Purpose of Application *", type: "textarea", required: true }
+                ],
+                shareOptions: [
+                    { name: "WhatsApp", class: "share-whatsapp", icon: "fab fa-whatsapp" },
+                    { name: "Government Portal", class: "share-gov", icon: "fas fa-landmark" }
+                ]
+            },
+            club: {
+                title: "Club Membership",
+                fields: [
+                    { name: "fullName", label: "Full Name *", type: "text", required: true },
+                    { name: "age", label: "Age *", type: "number", required: true },
+                    { name: "clubName", label: "Club Name *", type: "text", required: true },
+                    { name: "membershipType", label: "Membership Type *", type: "text", required: true },
+                    { name: "skills", label: "Relevant Skills", type: "textarea" },
+                    { name: "experience", label: "Previous Experience", type: "textarea" },
+                    { name: "interests", label: "Interests *", type: "textarea", required: true }
+                ],
+                shareOptions: [
+                    { name: "WhatsApp", class: "share-whatsapp", icon: "fab fa-whatsapp" },
+                    { name: "Club Portal", class: "share-club", icon: "fas fa-users" }
+                ]
+            },
+            medical: {
+                title: "Medical Records",
+                fields: [
+                    { name: "fullName", label: "Full Name *", type: "text", required: true },
+                    { name: "dob", label: "Date of Birth *", type: "date", required: true },
+                    { name: "bloodGroup", label: "Blood Group *", type: "text", required: true },
+                    { name: "allergies", label: "Allergies", type: "textarea" },
+                    { name: "conditions", label: "Medical Conditions", type: "textarea" },
+                    { name: "medications", label: "Current Medications", type: "textarea" },
+                    { name: "emergencyContact", label: "Emergency Contact *", type: "text", required: true },
+                    { name: "insurance", label: "Insurance Information", type: "textarea" }
+                ],
+                shareOptions: [
+                    { name: "WhatsApp", class: "share-whatsapp", icon: "fab fa-whatsapp" },
+                    { name: "Health Portal", class: "share-health", icon: "fas fa-heartbeat" }
+                ]
+            },
+            cards: {
+                title: "ID/Business Card",
+                fields: [
+                    { name: "fullName", label: "Full Name *", type: "text", required: true },
+                    { name: "designation", label: "Designation *", type: "text", required: true },
+                    { name: "company", label: "Company/Organization *", type: "text", required: true },
+                    { name: "phone", label: "Phone Number *", type: "tel", required: true },
+                    { name: "email", label: "Email Address *", type: "email", required: true },
+                    { name: "address", label: "Address", type: "text" },
+                    { name: "website", label: "Website", type: "text" },
+                    { name: "socialMedia", label: "Social Media Links", type: "text" }
+                ],
+                shareOptions: [
+                    { name: "WhatsApp", class: "share-whatsapp", icon: "fab fa-whatsapp" },
+                    { name: "Card Exchange", class: "share-card", icon: "fas fa-address-card" }
+                ]
+            },
+            training: {
+                title: "Training Application",
+                fields: [
+                    { name: "fullName", label: "Full Name *", type: "text", required: true },
+                    { name: "age", label: "Age *", type: "number", required: true },
+                    { name: "education", label: "Education *", type: "text", required: true },
+                    { name: "trainingProgram", label: "Training Program *", type: "text", required: true },
+                    { name: "skills", label: "Current Skills", type: "textarea" },
+                    { name: "goals", label: "Learning Goals *", type: "textarea", required: true },
+                    { name: "availability", label: "Availability *", type: "text", required: true }
+                ],
+                shareOptions: [
+                    { name: "WhatsApp", class: "share-whatsapp", icon: "fab fa-whatsapp" },
+                    { name: "Internship Portal", class: "share-intern", icon: "fas fa-laptop-code" }
+                ]
+            }
+        };
+
+        // DOM elements
+        const categoriesSection = document.getElementById('categories-section');
+        const formSection = document.getElementById('form-section');
+        const formTitle = document.getElementById('form-title');
+        const formFields = document.getElementById('form-fields');
+        const previewSection = document.getElementById('preview-section');
+        const biodataPreview = document.getElementById('biodata-preview');
+        const backToCategoriesBtn = document.getElementById('back-to-categories');
+        const backToFormBtn = document.getElementById('back-to-form');
+        const generatePreviewBtn = document.getElementById('generate-preview');
+        const downloadPdfBtn = document.getElementById('download-pdf');
+        const downloadJpgBtn = document.getElementById('download-jpg');
+        const pdfOptionsModal = document.getElementById('pdf-options-modal');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const combinedPdfBtn = document.getElementById('combined-pdf');
+        const separatePdfBtn = document.getElementById('separate-pdf');
+        const shareButtonsContainer = document.getElementById('share-buttons');
+
+        // State variables
+        let currentCategory = null;
+        let passportPhoto = null;
+        let additionalPhotos = [];
+        let documents = [];
+
+        // Event listeners for category cards
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const category = card.getAttribute('data-category');
+                openForm(category);
+            });
+        });
+
+        // Back buttons
+        backToCategoriesBtn.addEventListener('click', () => {
+            formSection.style.display = 'none';
+            categoriesSection.style.display = 'block';
+        });
+
+        backToFormBtn.addEventListener('click', () => {
+            previewSection.style.display = 'none';
+            formSection.style.display = 'block';
+        });
+
+        // Generate preview button
+        generatePreviewBtn.addEventListener('click', generatePreview);
+
+        // Download buttons
+        downloadPdfBtn.addEventListener('click', () => {
+            pdfOptionsModal.style.display = 'flex';
+        });
+
+        downloadJpgBtn.addEventListener('click', downloadAsJpg);
+
+        // Modal buttons
+        closeModalBtn.addEventListener('click', () => {
+            pdfOptionsModal.style.display = 'none';
+        });
+
+        combinedPdfBtn.addEventListener('click', () => {
+            downloadAsPdf('combined');
+            pdfOptionsModal.style.display = 'none';
+        });
+
+        separatePdfBtn.addEventListener('click', () => {
+            downloadAsPdf('separate');
+            pdfOptionsModal.style.display = 'none';
+        });
+
+        // File upload handling
+        document.getElementById('passport-photo').addEventListener('change', function(e) {
+            handleFileUpload(e, 'passport');
+        });
+
+        document.getElementById('additional-photos').addEventListener('change', function(e) {
+            handleFileUpload(e, 'additional');
+        });
+
+        document.getElementById('documents').addEventListener('change', function(e) {
+            handleFileUpload(e, 'document');
+        });
+
+        // Open form for selected category
+        function openForm(category) {
+            currentCategory = category;
+            const categoryConfig = categories[category];
+            
+            // Update form title
+            formTitle.textContent = `Create ${categoryConfig.title}`;
+            
+            // Generate form fields
+            formFields.innerHTML = '';
+            categoryConfig.fields.forEach(field => {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+                
+                const label = document.createElement('label');
+                label.textContent = field.label;
+                label.htmlFor = field.name;
+                
+                let input;
+                if (field.type === 'textarea') {
+                    input = document.createElement('textarea');
+                    input.rows = 4;
+                } else if (field.type === 'select') {
+                    input = document.createElement('select');
+                    field.options.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option;
+                        opt.textContent = option;
+                        input.appendChild(opt);
+                    });
+                } else {
+                    input = document.createElement('input');
+                    input.type = field.type;
+                }
+                
+                input.id = field.name;
+                input.name = field.name;
+                if (field.required) {
+                    input.required = true;
+                }
+                
+                formGroup.appendChild(label);
+                formGroup.appendChild(input);
+                formFields.appendChild(formGroup);
+            });
+            
+            // Show form section
+            categoriesSection.style.display = 'none';
+            formSection.style.display = 'block';
+            
+            // Reset file uploads
+            passportPhoto = null;
+            additionalPhotos = [];
+            documents = [];
+            document.getElementById('passport-preview').innerHTML = '';
+            document.getElementById('additional-previews').innerHTML = '';
+            document.getElementById('document-previews').innerHTML = '';
+        }
+
+        // Handle file uploads
+        function handleFileUpload(event, type) {
+            const files = event.target.files;
+            if (!files.length) return;
+            
+            const previewContainer = document.getElementById(`${type}-preview`);
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    if (type === 'passport') {
+                        passportPhoto = e.target.result;
+                        previewContainer.innerHTML = '';
+                    } else if (type === 'additional') {
+                        additionalPhotos.push(e.target.result);
+                    } else if (type === 'document') {
+                        documents.push({
+                            name: file.name,
+                            url: e.target.result,
+                            type: file.type
+                        });
+                    }
+                    
+                    // Create preview item
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    
+                    if (file.type.includes('image')) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        previewItem.appendChild(img);
+                    } else {
+                        const icon = document.createElement('div');
+                        icon.className = 'document-icon';
+                        icon.innerHTML = '<i class="fas fa-file-pdf" style="font-size: 50px; color: #e74c3c;"></i>';
+                        previewItem.appendChild(icon);
+                    }
+                    
+                    const removeBtn = document.createElement('div');
+                    removeBtn.className = 'remove-btn';
+                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.addEventListener('click', function() {
+                        previewItem.remove();
+                        if (type === 'passport') {
+                            passportPhoto = null;
+                        } else if (type === 'additional') {
+                            const index = additionalPhotos.indexOf(e.target.result);
+                            if (index !== -1) additionalPhotos.splice(index, 1);
+                        } else if (type === 'document') {
+                            const index = documents.findIndex(d => d.url === e.target.result);
+                            if (index !== -1) documents.splice(index, 1);
+                        }
+                    });
+                    
+                    previewItem.appendChild(removeBtn);
+                    previewContainer.appendChild(previewItem);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Generate preview
+        function generatePreview() {
+            // Validate required fields
+            const categoryConfig = categories[currentCategory];
+            let isValid = true;
+            
+            categoryConfig.fields.forEach(field => {
+                if (field.required) {
+                    const input = document.getElementById(field.name);
+                    if (!input.value.trim()) {
+                        isValid = false;
+                        input.style.borderColor = 'red';
+                    } else {
+                        input.style.borderColor = '';
+                    }
+                }
+            });
+            
+            if (!isValid) {
+                alert('Please fill all required fields');
+                return;
+            }
+            
+            if (!passportPhoto) {
+                alert('Please upload a passport size photo');
+                return;
+            }
+            
+            // Generate preview HTML
+            let previewHTML = `
+                <div class="biodata-header">
+                    <div class="biodata-info">
+                        <h2>${document.getElementById('fullName').value}</h2>
+                        <h3>${categoryConfig.title}</h3>
+                    </div>
+                    <div class="biodata-photo">
+                        <img src="${passportPhoto}" alt="Passport Photo">
+                    </div>
+                </div>
+                
+                <div class="biodata-details">
+            `;
+            
+            categoryConfig.fields.forEach(field => {
+                const value = document.getElementById(field.name).value;
+                if (value) {
+                    previewHTML += `
+                        <div class="detail-group">
+                            <h4>${field.label.replace(' *', '')}</h4>
+                            <p>${value}</p>
+                        </div>
+                    `;
+                }
+            });
+            
+            previewHTML += `</div>`;
+            
+            // Add documents section if any
+            if (documents.length > 0) {
+                previewHTML += `
+                    <div class="documents-section">
+                        <h3>Documents</h3>
+                        <div class="documents-grid">
+                `;
+                
+                documents.forEach(doc => {
+                    if (doc.type.includes('image')) {
+                        previewHTML += `
+                            <div class="document-item">
+                                <img src="${doc.url}" alt="${doc.name}">
+                                <div class="document-name">${doc.name}</div>
+                            </div>
+                        `;
+                    } else {
+                        previewHTML += `
+                            <div class="document-item">
+                                <div style="text-align: center; padding: 20px 0;">
+                                    <i class="fas fa-file-pdf" style="font-size: 50px; color: #e74c3c;"></i>
+                                </div>
+                                <div class="document-name">${doc.name}</div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                previewHTML += `</div></div>`;
+            }
+            
+            // Add additional photos if any
+            if (additionalPhotos.length > 0) {
+                previewHTML += `
+                    <div class="documents-section">
+                        <h3>Additional Photos</h3>
+                        <div class="documents-grid">
+                `;
+                
+                additionalPhotos.forEach(photo => {
+                    previewHTML += `
+                        <div class="document-item">
+                            <img src="${photo}" alt="Additional Photo">
+                        </div>
+                    `;
+                });
+                
+                previewHTML += `</div></div>`;
+            }
+            
+            biodataPreview.innerHTML = previewHTML;
+            
+            // Generate share buttons based on category
+            generateShareButtons();
+            
+            // Show preview section
+            formSection.style.display = 'none';
+            previewSection.style.display = 'block';
+        }
+
+        // Generate share buttons based on category
+        function generateShareButtons() {
+            const categoryConfig = categories[currentCategory];
+            shareButtonsContainer.innerHTML = '';
+            
+            categoryConfig.shareOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.className = `share-btn ${option.class}`;
+                button.innerHTML = `<i class="${option.icon}"></i> ${option.name}`;
+                
+                // Add event listener based on platform
+                if (option.name === 'WhatsApp') {
+                    button.addEventListener('click', shareOnWhatsApp);
+                } else {
+                    button.addEventListener('click', () => {
+                        alert(`Sharing to ${option.name} would be implemented with their API`);
+                    });
+                }
+                
+                shareButtonsContainer.appendChild(button);
+            });
+        }
+
+        // Download as PDF
+        function downloadAsPdf(layout) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            // Capture the preview content
+            html2canvas(biodataPreview).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                let heightLeft = imgHeight;
+                let position = 0;
+                
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+                
+                // Add additional pages if needed
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+                
+                // Save the PDF
+                const fileName = `${document.getElementById('fullName').value || 'biodata'}.pdf`;
+                doc.save(fileName);
+            });
+        }
+
+        // Download as JPG
+        function downloadAsJpg() {
+            html2canvas(biodataPreview).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `${document.getElementById('fullName').value || 'biodata'}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+            });
+        }
+
+        // Share on WhatsApp
+        function shareOnWhatsApp() {
+            const text = `Check out my biodata: ${document.getElementById('fullName').value} - ${categories[currentCategory].title}`;
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
